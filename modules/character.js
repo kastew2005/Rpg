@@ -2,12 +2,13 @@ export class Character {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.radius = 20;
-        this.speed = 2.8;
+        this.radius = 16;
+        this.speed = 2.5;
         this.direction = 0;
         this.isMoving = false;
         this.isAttacking = false;
         this.attackTimer = 0;
+        this.attackCooldown = 0;
         this.gold = 100;
         this.health = 100;
         this.maxHealth = 100;
@@ -15,18 +16,14 @@ export class Character {
         this.exp = 0;
         this.expToNext = 100;
         this.name = 'Странник';
-        this.equipment = {
-            weapon: 'Меч',
-            shield: 'Щит',
-            helmet: 'Шлем'
-        };
+        this.sprite = '⚔️';
     }
     
     attack() {
-        if (!this.isAttacking) {
-            this.isAttacking = true;
-            this.attackTimer = 25;
-        }
+        if (this.attackCooldown > 0) return;
+        this.isAttacking = true;
+        this.attackTimer = 20;
+        this.attackCooldown = 15;
     }
     
     update() {
@@ -35,6 +32,9 @@ export class Character {
             if (this.attackTimer === 0) {
                 this.isAttacking = false;
             }
+        }
+        if (this.attackCooldown > 0) {
+            this.attackCooldown--;
         }
     }
     
@@ -46,6 +46,17 @@ export class Character {
     heal(amount) {
         this.health = Math.min(this.maxHealth, this.health + amount);
     }
+    
+    addExp(amount) {
+        this.exp += amount;
+        while (this.exp >= this.expToNext) {
+            this.exp -= this.expToNext;
+            this.level++;
+            this.expToNext = Math.floor(this.expToNext * 1.5);
+            this.maxHealth += 10;
+            this.health = this.maxHealth;
+        }
+    }
 }
 
 export class NPC {
@@ -56,7 +67,9 @@ export class NPC {
         this.dialog = dialog;
         this.title = 'Житель';
         this.portrait = '👤';
-        this.radius = 18;
+        this.radius = 16;
+        this.health = 50;
+        this.maxHealth = 50;
         this.isNear = false;
         this.isHighlighted = false;
         this.floatOffset = 0;
@@ -66,16 +79,28 @@ export class NPC {
         this.walkTarget = { x: x, y: y };
         this.isWalking = false;
         this.walkRadius = 40 + Math.random() * 40;
+        this.direction = 0;
+        this.isDead = false;
+        this.respawnTimer = 0;
     }
     
     update(time) {
-        this.phase += this.floatSpeed;
-        this.floatOffset = Math.sin(this.phase) * 2;
+        if (this.isDead) {
+            this.respawnTimer--;
+            if (this.respawnTimer <= 0) {
+                this.isDead = false;
+                this.health = this.maxHealth;
+            }
+            return;
+        }
         
-        // Иногда ходит
+        this.phase += this.floatSpeed;
+        this.floatOffset = Math.sin(this.phase) * 1.5;
+        
+        // Случайное хождение
         if (!this.isNear) {
             this.walkTimer += 0.01;
-            if (this.walkTimer > 3 + Math.random() * 2) {
+            if (this.walkTimer > 2 + Math.random() * 2) {
                 this.walkTimer = 0;
                 const angle = Math.random() * Math.PI * 2;
                 this.walkTarget.x = this.x + Math.cos(angle) * this.walkRadius;
@@ -89,12 +114,29 @@ export class NPC {
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 
                 if (dist > 2) {
-                    this.x += (dx / dist) * 0.3;
-                    this.y += (dy / dist) * 0.3;
+                    this.x += (dx / dist) * 0.5;
+                    this.y += (dy / dist) * 0.5;
+                    this.direction = Math.atan2(dy, dx);
                 } else {
                     this.isWalking = false;
                 }
             }
         }
+    }
+    
+    takeDamage(damage) {
+        if (this.isDead) return;
+        this.health -= damage;
+        if (this.health <= 0) {
+            this.health = 0;
+            this.isDead = true;
+            this.respawnTimer = 300; // 5 секунд
+        }
+    }
+    
+    respawn() {
+        this.isDead = false;
+        this.health = this.maxHealth;
+        this.respawnTimer = 0;
     }
 }
