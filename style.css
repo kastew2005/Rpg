@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -11,7 +13,7 @@ body {
     overflow: hidden;
     height: 100vh;
     width: 100vw;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'MedievalSharp', 'Segoe UI', cursive;
 }
 
 #game-container {
@@ -43,226 +45,387 @@ body {
     pointer-events: auto;
 }
 
-/* Stats */
+/* Stats - Medieval Style */
 #stats {
     position: absolute;
     top: 15px;
     left: 15px;
     right: 15px;
     display: flex;
-    gap: 15px;
+    gap: 12px;
     align-items: center;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 10px 15px;
-    border-radius: 15px;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    background: rgba(20, 12, 8, 0.85);
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 2px solid #8b7355;
+    box-shadow: 
+        0 4px 30px rgba(0, 0, 0, 0.8),
+        inset 0 2px 0 rgba(139, 115, 85, 0.3);
+    backdrop-filter: blur(8px);
+    font-family: 'MedievalSharp', cursive;
+}
+
+#health-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+#health-icon {
+    color: #ff6b6b;
+    font-size: 20px;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
 }
 
 #health-bar {
     flex: 1;
-    height: 18px;
-    background: rgba(255, 0, 0, 0.3);
-    border-radius: 10px;
+    height: 20px;
+    background: rgba(40, 20, 15, 0.8);
+    border-radius: 4px;
     overflow: hidden;
-    border: 1px solid rgba(255, 0, 0, 0.5);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    border: 1px solid #5a3d2e;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+    position: relative;
 }
 
 #health-fill {
     height: 100%;
     width: 100%;
-    background: linear-gradient(90deg, #ff1744, #ff6b6b);
-    border-radius: 10px;
+    background: linear-gradient(90deg, #8b0000, #cc3333, #ff4444);
+    border-radius: 3px;
     transition: width 0.3s ease;
-    box-shadow: 0 0 20px rgba(255, 23, 68, 0.4);
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
+    position: relative;
+}
+
+#health-fill::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    right: 5px;
+    height: 6px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.3), transparent);
+    border-radius: 2px;
+}
+
+#health-text {
+    color: #d4b896;
+    font-size: 14px;
+    min-width: 55px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 #gold-display {
     color: #ffd700;
     font-size: 18px;
     font-weight: bold;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-    min-width: 80px;
-    text-align: right;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+    padding: 0 12px;
+    border-left: 1px solid rgba(139, 115, 85, 0.3);
+    border-right: 1px solid rgba(139, 115, 85, 0.3);
 }
 
-/* Interaction Panel */
+#level-display {
+    color: #8bc34a;
+    font-size: 16px;
+    text-shadow: 0 0 20px rgba(139, 195, 74, 0.2);
+}
+
+/* Interaction Panel - Medieval */
 #interaction-panel {
     position: absolute;
-    bottom: 120px;
+    bottom: 130px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 15px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 12px 20px;
-    border-radius: 20px;
+    gap: 12px;
+    background: rgba(20, 12, 8, 0.9);
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: 2px solid #8b7355;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 rgba(139, 115, 85, 0.3);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #interaction-panel button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 12px;
+    padding: 10px 18px;
+    border: 1px solid #8b7355;
+    border-radius: 4px;
+    font-family: 'MedievalSharp', cursive;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(40, 28, 20, 0.8);
+    color: #d4b896;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    box-shadow: inset 0 2px 0 rgba(139, 115, 85, 0.2);
 }
 
 #interaction-panel button:active {
     transform: scale(0.92);
+    background: rgba(60, 40, 30, 0.9);
 }
 
 #talk-btn {
-    background: rgba(76, 175, 80, 0.3) !important;
-    border-color: rgba(76, 175, 80, 0.5) !important;
+    border-color: #6d8a6d !important;
+    color: #8bc34a !important;
 }
 
 #trade-btn {
-    background: rgba(255, 215, 0, 0.3) !important;
-    border-color: rgba(255, 215, 0, 0.5) !important;
+    border-color: #b8860b !important;
+    color: #ffd700 !important;
 }
 
-/* Dialogue Box */
+#quest-btn {
+    border-color: #4a6a8a !important;
+    color: #64b5f6 !important;
+}
+
+/* Dialogue Box - Medieval */
 #dialogue-box {
     position: absolute;
     bottom: 200px;
     left: 50%;
     transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    background: rgba(0, 0, 0, 0.9);
-    padding: 20px 25px;
-    border-radius: 20px;
+    width: 92%;
+    max-width: 450px;
+    background: rgba(20, 12, 8, 0.95);
+    padding: 20px 24px;
+    border-radius: 8px;
+    border: 3px solid #8b7355;
+    box-shadow: 
+        0 10px 60px rgba(0, 0, 0, 0.9),
+        inset 0 1px 0 rgba(139, 115, 85, 0.3);
     backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 215, 0, 0.3);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+#dialogue-portrait {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    border-radius: 50%;
+    border: 2px solid #8b7355;
+    background: linear-gradient(135deg, #3d2a1a, #2d1f14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+#dialogue-content {
+    flex: 1;
+}
+
+#dialogue-name {
+    color: #ffd700;
+    font-family: 'MedievalSharp', cursive;
+    font-size: 18px;
+    margin-bottom: 6px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
 }
 
 #dialogue-text {
-    color: #fff8e7;
+    color: #d4c8b8;
+    font-family: 'MedievalSharp', cursive;
     font-size: 16px;
     line-height: 1.6;
-    margin: 0 0 15px 0;
+    margin: 0;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 #dialogue-close {
-    background: rgba(255, 0, 0, 0.3);
-    border: 1px solid rgba(255, 0, 0, 0.4);
-    color: white;
-    padding: 8px 20px;
-    border-radius: 10px;
+    background: rgba(60, 30, 20, 0.8);
+    border: 1px solid #5a3d2e;
+    color: #d4b896;
+    padding: 6px 14px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 18px;
-    float: right;
+    font-size: 20px;
+    font-family: 'MedievalSharp', cursive;
+    transition: all 0.2s;
+    box-shadow: inset 0 2px 0 rgba(139, 115, 85, 0.2);
 }
 
-/* Joystick */
+#dialogue-close:active {
+    transform: scale(0.9);
+}
+
+/* Joystick - Medieval Style */
 #joystick-area {
     position: absolute;
     bottom: 30px;
     left: 30px;
-    width: 130px;
-    height: 130px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
+    background: radial-gradient(circle, rgba(40, 28, 20, 0.6), rgba(20, 12, 8, 0.8));
+    border: 3px solid #8b7355;
+    box-shadow: 
+        0 0 50px rgba(0, 0, 0, 0.6),
+        inset 0 0 60px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(5px);
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(0, 0, 0, 0.3);
+}
+
+#joystick-area::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    border: 1px solid rgba(139, 115, 85, 0.2);
 }
 
 #joystick {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #ffd700, #b8860b);
+    background: radial-gradient(circle at 35% 35%, #d4a84a, #8b6914);
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 -5px 15px rgba(0,0,0,0.3);
+    box-shadow: 
+        0 4px 30px rgba(139, 115, 85, 0.3),
+        inset 0 -4px 12px rgba(0,0,0,0.4),
+        inset 0 4px 12px rgba(255,215,0,0.2);
     cursor: grab;
     transition: box-shadow 0.2s;
+    border: 2px solid #b8860b;
+}
+
+#joystick::after {
+    content: '⚔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: rgba(255, 215, 0, 0.3);
 }
 
 #joystick:active {
-    box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
+    box-shadow: 
+        0 4px 50px rgba(139, 115, 85, 0.5),
+        inset 0 -4px 12px rgba(0,0,0,0.4),
+        inset 0 4px 12px rgba(255,215,0,0.3);
 }
 
-/* Action Button */
+/* Action Button - Medieval */
 #action-btn {
     position: absolute;
     bottom: 40px;
     right: 30px;
-    width: 70px;
-    height: 70px;
+    width: 75px;
+    height: 75px;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #ff6b6b, #c0392b);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    font-size: 30px;
+    background: radial-gradient(circle at 35% 35%, #8b1a1a, #4a0a0a);
+    border: 3px solid #6d2a2a;
+    color: #ffd700;
+    font-size: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 30px rgba(255, 0, 0, 0.4), inset 0 -5px 15px rgba(0,0,0,0.3);
+    box-shadow: 
+        0 4px 40px rgba(139, 0, 0, 0.4),
+        inset 0 -4px 20px rgba(0,0,0,0.5),
+        inset 0 4px 20px rgba(255,0,0,0.1);
     cursor: pointer;
     transition: all 0.15s;
+    font-family: 'MedievalSharp', cursive;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
 #action-btn:active {
-    transform: scale(0.88);
-    box-shadow: 0 4px 50px rgba(255, 0, 0, 0.7);
+    transform: scale(0.85);
+    box-shadow: 
+        0 4px 60px rgba(139, 0, 0, 0.7),
+        inset 0 -4px 20px rgba(0,0,0,0.5);
 }
 
 /* Mobile responsiveness */
 @media (max-width: 480px) {
     #stats {
         padding: 8px 12px;
-        top: 10px;
-        left: 10px;
-        right: 10px;
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        gap: 8px;
+        flex-wrap: wrap;
     }
+    
+    #health-text {
+        font-size: 11px;
+        min-width: 40px;
+    }
+    
     #gold-display {
         font-size: 14px;
-        min-width: 60px;
+        padding: 0 8px;
     }
+    
+    #level-display {
+        font-size: 13px;
+    }
+    
     #joystick-area {
-        width: 100px;
-        height: 100px;
+        width: 110px;
+        height: 110px;
         bottom: 20px;
         left: 20px;
     }
+    
     #joystick {
-        width: 45px;
-        height: 45px;
+        width: 48px;
+        height: 48px;
     }
+    
     #action-btn {
         width: 60px;
         height: 60px;
-        font-size: 24px;
+        font-size: 26px;
         bottom: 25px;
         right: 20px;
     }
+    
     #interaction-panel {
         bottom: 100px;
         padding: 8px 12px;
-        gap: 10px;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
+    
     #interaction-panel button {
-        padding: 8px 14px;
+        padding: 6px 12px;
         font-size: 14px;
     }
+    
     #dialogue-box {
-        bottom: 160px;
-        padding: 15px 20px;
+        bottom: 150px;
+        padding: 14px 16px;
+        flex-wrap: wrap;
+    }
+    
+    #dialogue-portrait {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        font-size: 26px;
+    }
+    
+    #dialogue-text {
+        font-size: 14px;
     }
 }
