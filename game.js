@@ -11,40 +11,41 @@ class Game {
         this.ctx = this.canvas.getContext('2d');
         this.resizeCanvas();
         
-        // Инициализация модулей
         this.physics = new Physics();
         this.graphics = new Graphics(this.ctx);
         this.village = new VillageGenerator();
         this.ui = new UI();
         
-        // Игровой мир
         this.world = {
-            width: 1200,
-            height: 1200
+            width: 1400,
+            height: 1400
         };
         
-        // Камера
         this.camera = {
             x: 0,
-            y: 0
+            y: 0,
+            shakeX: 0,
+            shakeY: 0,
+            shakeIntensity: 0
         };
         
-        // Персонаж
-        this.player = new Character(600, 600);
+        this.player = new Character(700, 700);
+        this.player.name = 'Странник';
         
-        // NPC
         this.npcs = [];
         this.spawnNPCs();
         
-        // Состояние игры
         this.keys = {};
         this.joystick = { x: 0, y: 0 };
         this.selectedNPC = null;
         this.dialogueActive = false;
         
-        // Тени и эффекты
         this.time = 0;
         this.particles = [];
+        this.weather = {
+            type: 'clear', // clear, rain, fog
+            intensity: 0
+        };
         
         this.setupControls();
         this.gameLoop();
@@ -58,24 +59,60 @@ class Game {
     }
     
     spawnNPCs() {
-        const villageData = this.village.generate();
-        const npcConfigs = [
-            { name: 'Мудрец', x: 450, y: 450, dialog: 'Приветствую, путник! Я вижу в тебе великий потенциал.' },
-            { name: 'Торговец', x: 550, y: 380, dialog: 'Лучшие товары в деревне! Что желаешь?' },
-            { name: 'Фермер', x: 700, y: 500, dialog: 'Урожай в этом году отличный!' },
-            { name: 'Кузнец', x: 300, y: 550, dialog: 'Мой молот всегда готов к работе.' },
-            { name: 'Староста', x: 480, y: 300, dialog: 'Добро пожаловать в нашу деревню!' }
+        const npcData = [
+            { 
+                name: 'Мудрец Эльдор', 
+                x: 550, y: 480, 
+                dialog: 'Мудрость древних говорит: "Путь героя начинается с первого шага".',
+                title: 'Хранитель знаний',
+                portrait: '🧙'
+            },
+            { 
+                name: 'Торговец Роланд', 
+                x: 750, y: 420, 
+                dialog: 'Лучшие товары во всем королевстве! Только сегодня особые цены!',
+                title: 'Купец',
+                portrait: '🧳'
+            },
+            { 
+                name: 'Фермер Генри', 
+                x: 850, y: 580, 
+                dialog: 'Урожай в этом году благословили боги! Пшеница выше головы!',
+                title: 'Земледелец',
+                portrait: '🌾'
+            },
+            { 
+                name: 'Кузнец Торн', 
+                x: 400, y: 580, 
+                dialog: 'Мой молот звенит, кузня горит - любой меч скую!',
+                title: 'Мастер-кузнец',
+                portrait: '🔨'
+            },
+            { 
+                name: 'Староста Альдрик', 
+                x: 600, y: 350, 
+                dialog: 'Добро пожаловать в нашу деревню, путник. Чувствуй себя как дома.',
+                title: 'Староста',
+                portrait: '👑'
+            },
+            { 
+                name: 'Трактирщица Марта', 
+                x: 500, y: 650, 
+                dialog: 'Лучший эль в округе! И горячий ужин для уставших путников.',
+                title: 'Хозяйка трактира',
+                portrait: '🍺'
+            }
         ];
         
-        npcConfigs.forEach((cfg, i) => {
-            const npc = new NPC(cfg.x, cfg.y, cfg.name, cfg.dialog);
-            npc.sprite = i % 2 === 0 ? '🏘️' : '👤';
+        npcData.forEach((data) => {
+            const npc = new NPC(data.x, data.y, data.name, data.dialog);
+            npc.title = data.title;
+            npc.portrait = data.portrait;
             this.npcs.push(npc);
         });
     }
     
     setupControls() {
-        // Джойстик
         const joystick = document.getElementById('joystick');
         const joystickArea = document.getElementById('joystick-area');
         let isDragging = false;
@@ -113,7 +150,6 @@ class Game {
             this.joystick.x = Math.max(-1, Math.min(1, normalizedX));
             this.joystick.y = Math.max(-1, Math.min(1, normalizedY));
             
-            // Визуальное обновление джойстика
             const joystickX = normalizedX * maxDistance;
             const joystickY = normalizedY * maxDistance;
             joystick.style.transform = `translate(calc(-50% + ${joystickX}px), calc(-50% + ${joystickY}px))`;
@@ -135,7 +171,6 @@ class Game {
         joystickArea.addEventListener('touchend', resetJoystick);
         joystickArea.addEventListener('touchcancel', resetJoystick);
         
-        // Клики для ПК (для отладки)
         joystickArea.addEventListener('mousedown', (e) => {
             isDragging = true;
             handleJoystick(e);
@@ -147,21 +182,40 @@ class Game {
         
         document.addEventListener('mouseup', resetJoystick);
         
-        // Кнопка действия
         document.getElementById('action-btn').addEventListener('click', () => {
             this.handleAction();
         });
         
-        // Кнопки взаимодействия
         document.getElementById('talk-btn').addEventListener('click', () => {
             if (this.selectedNPC) {
-                this.showDialogue(this.selectedNPC.dialog);
+                this.showDialogue(this.selectedNPC.dialog, this.selectedNPC.name, this.selectedNPC.portrait);
             }
         });
         
         document.getElementById('trade-btn').addEventListener('click', () => {
             if (this.selectedNPC) {
-                this.showDialogue(`💰 ${this.selectedNPC.name}: "У меня есть отличные товары!"`);
+                this.showDialogue(
+                    `"Добро пожаловать в мою лавку! Вот что я могу предложить:\n🪙 Золотая монета - 1 шт.\n⚔️ Стальной меч - 50 монет\n🛡️ Деревянный щит - 30 монет"`,
+                    this.selectedNPC.name,
+                    this.selectedNPC.portrait
+                );
+            }
+        });
+        
+        document.getElementById('quest-btn').addEventListener('click', () => {
+            if (this.selectedNPC) {
+                const quests = [
+                    'Принеси мне 10 шкур волков! Награда: 100 монет.',
+                    'Найди древний артефакт в старой башне к северу отсюда.',
+                    'Помоги фермеру собрать урожай - получишь 50 монет.',
+                    'Очисти подвал от крыс - награда: 30 монет и зелье здоровья.'
+                ];
+                const quest = quests[Math.floor(Math.random() * quests.length)];
+                this.showDialogue(
+                    `"${quest}"\n\n📜 Возьмешься за задание?`,
+                    this.selectedNPC.name,
+                    this.selectedNPC.portrait
+                );
             }
         });
         
@@ -176,9 +230,8 @@ class Game {
             return;
         }
         
-        // Поиск ближайшего NPC
         let nearest = null;
-        let minDist = 100;
+        let minDist = 120;
         
         for (const npc of this.npcs) {
             const dx = npc.x - this.player.x;
@@ -194,37 +247,41 @@ class Game {
         if (nearest) {
             this.selectedNPC = nearest;
             document.getElementById('interaction-panel').style.display = 'flex';
-            
-            // Подсветка NPC
             nearest.isHighlighted = true;
+            
+            this.camera.shakeIntensity = 3;
         } else {
-            // Анимация атаки
             this.player.attack();
             this.spawnAttackEffect();
+            this.camera.shakeIntensity = 5;
         }
     }
     
     spawnAttackEffect() {
-        for (let i = 0; i < 20; i++) {
+        const colors = ['#ff6b35', '#ffd700', '#ff4444', '#ffaa00'];
+        for (let i = 0; i < 25; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const speed = 2 + Math.random() * 3;
+            const speed = 2 + Math.random() * 4;
             this.particles.push({
                 x: this.player.x,
                 y: this.player.y,
                 vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
-                life: 30 + Math.random() * 20,
+                vy: Math.sin(angle) * speed - 1,
+                life: 25 + Math.random() * 25,
                 maxLife: 50,
-                size: 3 + Math.random() * 5,
-                color: `hsl(${40 + Math.random() * 20}, 100%, ${60 + Math.random() * 30}%)`
+                size: 4 + Math.random() * 6,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                type: 'spark'
             });
         }
     }
     
-    showDialogue(text) {
+    showDialogue(text, name, portrait) {
         this.dialogueActive = true;
-        document.getElementById('dialogue-box').style.display = 'block';
+        document.getElementById('dialogue-box').style.display = 'flex';
         document.getElementById('dialogue-text').textContent = text;
+        document.getElementById('dialogue-name').textContent = name || 'Незнакомец';
+        document.getElementById('dialogue-portrait').textContent = portrait || '👤';
         document.getElementById('interaction-panel').style.display = 'none';
     }
     
@@ -241,41 +298,60 @@ class Game {
     update() {
         this.time += 0.016;
         
-        // Движение игрока
-        const speed = CONFIG.playerSpeed;
+        // Тряска камеры
+        if (this.camera.shakeIntensity > 0) {
+            this.camera.shakeX = (Math.random() - 0.5) * this.camera.shakeIntensity * 2;
+            this.camera.shakeY = (Math.random() - 0.5) * this.camera.shakeIntensity * 2;
+            this.camera.shakeIntensity *= 0.92;
+            if (this.camera.shakeIntensity < 0.1) {
+                this.camera.shakeIntensity = 0;
+                this.camera.shakeX = 0;
+                this.camera.shakeY = 0;
+            }
+        }
+        
+        const speed = CONFIG.playerSpeed * (1 + this.player.level * 0.05);
         let dx = this.joystick.x * speed;
         let dy = this.joystick.y * speed;
         
-        // Проверка коллизий с границами мира
+        // Обновление направления персонажа
+        if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+            this.player.isMoving = true;
+            this.player.direction = Math.atan2(dy, dx);
+        } else {
+            this.player.isMoving = false;
+        }
+        
         const newX = this.player.x + dx;
         const newY = this.player.y + dy;
         
-        if (newX > 20 && newX < this.world.width - 20) {
+        if (newX > 30 && newX < this.world.width - 30) {
             this.player.x = newX;
         }
-        if (newY > 20 && newY < this.world.height - 20) {
+        if (newY > 30 && newY < this.world.height - 30) {
             this.player.y = newY;
         }
         
-        // Обновление камеры
-        this.camera.x = this.player.x - this.canvas.width / 2;
-        this.camera.y = this.player.y - this.canvas.height / 2;
+        this.camera.x = this.player.x - this.canvas.width / 2 + this.camera.shakeX;
+        this.camera.y = this.player.y - this.canvas.height / 2 + this.camera.shakeY;
         
-        // Обновление NPC
         for (const npc of this.npcs) {
-            npc.update();
+            npc.update(this.time);
         }
         
-        // Обновление частиц
         this.particles = this.particles.filter(p => {
             p.x += p.vx;
             p.y += p.vy;
-            p.vy += 0.05;
+            p.vy += 0.08;
+            p.vx *= 0.98;
             p.life--;
             return p.life > 0;
         });
         
-        // Проверка взаимодействия с NPC
+        // Погода
+        this.weather.intensity = 0.3 + Math.sin(this.time * 0.01) * 0.2;
+        
+        // Взаимодействие с NPC
         this.selectedNPC = null;
         for (const npc of this.npcs) {
             const dist = Math.sqrt(
@@ -283,9 +359,9 @@ class Game {
                 (npc.y - this.player.y) ** 2
             );
             
-            if (dist < 80) {
+            if (dist < 100) {
                 npc.isNear = true;
-                if (dist < 60) {
+                if (dist < 70) {
                     this.selectedNPC = npc;
                     npc.isHighlighted = true;
                 }
@@ -295,63 +371,65 @@ class Game {
             }
         }
         
-        // Показ панели взаимодействия
         if (this.selectedNPC && !this.dialogueActive) {
             document.getElementById('interaction-panel').style.display = 'flex';
         } else if (!this.dialogueActive) {
             document.getElementById('interaction-panel').style.display = 'none';
         }
+        
+        this.player.update();
     }
     
     render() {
         const ctx = this.ctx;
         const canvas = this.canvas;
         
-        // Очистка
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Фон
-        this.graphics.drawBackground(ctx, this.camera);
+        this.graphics.drawBackground(ctx, this.camera, this.time);
         
-        // Сохранение контекста для трансформации камеры
         ctx.save();
         ctx.translate(-this.camera.x, -this.camera.y);
         
-        // Отрисовка деревни
-        this.village.render(ctx, this.camera);
+        this.village.render(ctx, this.camera, this.time);
         
-        // Отрисовка теней
         this.graphics.drawShadows(ctx, this.player, this.npcs, this.camera);
         
-        // Отрисовка NPC
         for (const npc of this.npcs) {
-            this.graphics.drawNPC(ctx, npc, this.camera);
+            this.graphics.drawNPC(ctx, npc, this.camera, this.time);
         }
         
-        // Отрисовка игрока
-        this.graphics.drawPlayer(ctx, this.player, this.camera);
+        this.graphics.drawPlayer(ctx, this.player, this.camera, this.time);
         
-        // Отрисовка частиц
         for (const p of this.particles) {
             const alpha = p.life / p.maxLife;
             ctx.globalAlpha = alpha;
-            ctx.fillStyle = p.color;
-            ctx.shadowColor = p.color;
-            ctx.shadowBlur = 15;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
+            
+            if (p.type === 'spark') {
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * alpha * 0.8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Хвост частицы
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = alpha * 0.3;
+                ctx.beginPath();
+                ctx.arc(p.x - p.vx * 2, p.y - p.vy * 2, p.size * alpha * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
         }
         ctx.globalAlpha = 1;
         
         ctx.restore();
         
-        // Визуальные эффекты (блики и т.д.)
         this.graphics.drawVignette(ctx, canvas);
-        this.graphics.drawTimeEffects(ctx, canvas, this.time);
-        
-        // UI отрисовка поверх всего
+        this.graphics.drawWeather(ctx, canvas, this.weather, this.time);
+        this.graphics.drawCompass(ctx, canvas, this.player);
         this.graphics.drawInteractionHints(ctx, this.selectedNPC, this.camera, canvas);
     }
     
@@ -362,5 +440,4 @@ class Game {
     }
 }
 
-// Запуск игры
 new Game();
