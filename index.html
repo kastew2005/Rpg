@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>RPG Village</title>
+    <title>Medieval RPG</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,22 +11,36 @@
         <canvas id="gameCanvas"></canvas>
         <div id="ui-overlay">
             <div id="stats">
-                <div id="health-bar">
-                    <div id="health-fill"></div>
+                <div id="health-container">
+                    <div id="health-icon">⚔️</div>
+                    <div id="health-bar">
+                        <div id="health-fill"></div>
+                    </div>
+                    <span id="health-text">100/100</span>
                 </div>
-                <div id="gold-display">💰 100</div>
+                <div id="gold-display">🪙 100</div>
+                <div id="level-display">🎯 Ур. 1</div>
             </div>
+            
             <div id="interaction-panel" style="display:none;">
-                <button id="talk-btn">💬 Поговорить</button>
-                <button id="trade-btn">🛒 Торговать</button>
+                <button id="talk-btn">💬 Беседа</button>
+                <button id="trade-btn">🏪 Торг</button>
+                <button id="quest-btn">📜 Квест</button>
             </div>
+            
             <div id="dialogue-box" style="display:none;">
-                <p id="dialogue-text"></p>
+                <div id="dialogue-portrait"></div>
+                <div id="dialogue-content">
+                    <div id="dialogue-name">Мудрец</div>
+                    <p id="dialogue-text"></p>
+                </div>
                 <button id="dialogue-close">✕</button>
             </div>
+            
             <div id="joystick-area">
                 <div id="joystick"></div>
             </div>
+            
             <div id="action-btn">⚔️</div>
         </div>
     </div>
