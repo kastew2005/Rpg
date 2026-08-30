@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>RPG Village</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-overlay">
+            <div id="stats">
+                <div id="health-bar">
+                    <div id="health-fill"></div>
+                </div>
+                <div id="gold-display">💰 100</div>
+            </div>
+            <div id="interaction-panel" style="display:none;">
+                <button id="talk-btn">💬 Поговорить</button>
+                <button id="trade-btn">🛒 Торговать</button>
+            </div>
+            <div id="dialogue-box" style="display:none;">
+                <p id="dialogue-text"></p>
+                <button id="dialogue-close">✕</button>
+            </div>
+            <div id="joystick-area">
+                <div id="joystick"></div>
+            </div>
+            <div id="action-btn">⚔️</div>
+        </div>
+    </div>
+    <script type="importmap">
+        {
+            "imports": {
+                "./modules/": "./modules/"
+            }
+        }
+    </script>
+    <script type="module" src="game.js"></script>
+</body>
+</html>
